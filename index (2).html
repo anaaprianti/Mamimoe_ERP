@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mamimoe Enterprise ERP & POS V2.33</title>
+    <title>Mamimoe Enterprise ERP & POS V2.35</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -41,7 +41,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .glass-card { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        @media print { .no-print { display: none !important; } .print-only { display: block !important; } }
+        @media print { body { overflow: visible !important; background: #fff !important; color: #111827 !important; } .no-print, aside, nav, button { display: none !important; } #mainContent, #mainContent * { color: #111827 !important; box-shadow: none !important; text-shadow: none !important; } #mainContent { overflow: visible !important; width: 100% !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; } .print-only { display: block !important; } }
         .print-only { display: none; }
     </style>
 </head>
@@ -54,7 +54,7 @@
             <div class="w-16 h-16 bg-gradient-to-tr from-mamimoe-600 to-purpleacc-600 rounded-2xl flex items-center justify-center text-white font-extrabold mx-auto mb-3 shadow-lg shadow-mamimoe-600/30">
                 <i class="fa-solid fa-leaf text-2xl"></i>
             </div>
-            <h2 class="text-2xl font-black text-white tracking-wide">Mamimoe ERP V2.28</h2>
+            <h2 class="text-2xl font-black text-white tracking-wide">Mamimoe ERP V2.35</h2>
             <p class="text-xs text-mamimoe-500 font-semibold mt-1">Enterprise POS & Botanical Care ERP</p>
         </div>
         <form onsubmit="handleLogin(event)" class="space-y-3.5">
@@ -79,6 +79,8 @@
                         <option value="Admin Operasional">Admin Operasional</option>
                         <option value="Finance & Akuntansi">Finance & Akuntansi</option>
                         <option value="Kepala Gudang">Kepala Gudang</option>
+                        <option value="Tim Produksi">Tim Produksi</option>
+                        <option value="Marketing">Marketing</option>
                     </select>
                 </div>
                 <div>
@@ -87,7 +89,7 @@
                         <option value="Direksi / Owner">Direksi / Owner</option>
                         <option value="Front Office & POS">Front Office & POS</option>
                         <option value="Finance & Accounting">Finance & Accounting</option>
-                        <option value="Warehouse & Logistik">Warehouse & Logistik</option>
+                        <option value="Warehouse & Logistik">Warehouse & Logistik</option><option value="Produksi">Produksi</option><option value="Marketing">Marketing</option>
                     </select>
                 </div>
             </div>
@@ -466,7 +468,7 @@
                         <option value="Admin Operasional">Admin Operasional</option>
                         <option value="Finance & Akuntansi">Finance & Akuntansi</option>
                         <option value="Kepala Gudang">Kepala Gudang</option>
-                        <option value="Tim Produksi">Tim Produksi</option>
+                        <option value="Tim Produksi">Tim Produksi</option><option value="Marketing">Marketing</option>
                     </select>
                 </div>
                 <div>
@@ -475,7 +477,7 @@
                         <option value="Direksi / Owner">Direksi / Owner</option>
                         <option value="Front Office & POS">Front Office & POS</option>
                         <option value="Finance & Accounting">Finance & Accounting</option>
-                        <option value="Warehouse & Logistik">Warehouse & Logistik</option>
+                        <option value="Warehouse & Logistik">Warehouse & Logistik</option><option value="Produksi">Produksi</option><option value="Marketing">Marketing</option>
                     </select>
                 </div>
             </div>
@@ -962,7 +964,7 @@
                         <option value="Store Kasir">Store Kasir</option>
                         <option value="Admin Operasional">Admin Operasional</option>
                         <option value="Kepala Gudang">Kepala Gudang</option>
-                        <option value="Tim Produksi">Tim Produksi</option>
+                        <option value="Tim Produksi">Tim Produksi</option><option value="Marketing">Marketing</option>
                         <option value="Finance & Akuntansi">Finance & Akuntansi</option>
                     </select>
                 </div>
@@ -1316,6 +1318,7 @@
         { id: 'inventory', name: 'Inventori & Barcode' },
         { id: 'stock_opname', name: 'Stock Opname Bulanan' },
         { id: 'production', name: 'Produksi & Resep BOM' },
+        { id: 'marketing', name: 'Marketing & Marketing Kit' },
         { id: 'procurement', name: 'Pengadaan & Restock' },
         { id: 'supplier', name: 'Data Supplier / Vendor' },
         { id: 'shipping', name: 'Cek Resi & Retur' },
@@ -1436,6 +1439,10 @@
         hrd: [
             { idNo: 'EMP-01', name: 'Rina Marlina', role: 'Store Kasir', ttl: 'Jakarta, 12 Mei 1998', address: 'Jl. Kebon Jeruk No. 12', mode: 'Mobile App / Camera', clockIn: '07:55 WIB', days: 22, salary: 4800000 }
         ],
+        marketingIdeas: [],
+        marketingKits: [],
+        marketingActivities: [],
+        marketingLeads: [],
         marketplaceKeys: {
             shopeeToken: 'SHP-LIVE-API-KEY-9920',
             tokpedToken: 'TKP-TIKTOK-SYNC-KEY-8820',
@@ -1514,54 +1521,25 @@
         e.preventDefault();
         const username = document.getElementById('loginUsername').value.trim();
         const staffNameInput = document.getElementById('loginStaffName').value.trim();
-        const passwordInput = document.getElementById('loginPassword').value.trim();
+        const passwordInput = document.getElementById('loginPassword').value;
         const roleInput = document.getElementById('loginRole').value;
         const deptInput = document.getElementById('loginDept').value;
-
-        // Check against state.users database
-        const foundUser = state.users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.pass === passwordInput);
-
-        if (foundUser) {
-            currentUser = {
-                username: foundUser.username,
-                role: foundUser.role,
-                staffName: foundUser.name,
-                dept: foundUser.dept,
-                modules: foundUser.modules || ['all']
-            };
-        } else {
-            // Default role fallback mapping if logging in as new
-            let allowedModules = ['all'];
-            if (roleInput === 'Kasir Toko') allowedModules = ['dashboard', 'v3_portal', 'pos', 'vouchers', 'cek_ongkir', 'crm', 'ai_assistant'];
-            else if (roleInput === 'Admin Operasional') allowedModules = ['dashboard', 'pos', 'inventory', 'stock_opname', 'procurement', 'supplier', 'shipping', 'cek_ongkir', 'hrd', 'crm', 'reports', 'ai_assistant'];
-            else if (roleInput === 'Finance & Akuntansi') allowedModules = ['dashboard', 'vouchers', 'procurement', 'coretax', 'accounting', 'audit', 'reports', 'ai_assistant'];
-            else if (roleInput === 'HRD') allowedModules = ['dashboard', 'hrd', 'reports'];
-            else if (roleInput === 'Kepala Gudang') allowedModules = ['dashboard', 'inventory', 'stock_opname', 'production', 'procurement', 'supplier', 'shipping', 'cek_ongkir', 'ai_assistant'];
-            else if (roleInput === 'Tim Produksi') allowedModules = ['dashboard', 'production', 'inventory', 'stock_opname', 'ai_assistant'];
-
-            currentUser = {
-                username,
-                role: roleInput,
-                staffName: staffNameInput,
-                dept: deptInput,
-                modules: allowedModules
-            };
-        }
-
+        const foundUser = (state.users || []).find(u => String(u.username).toLowerCase() === username.toLowerCase() && String(u.pass) === passwordInput);
+        // No fallback login: users and their roles must be registered by Owner.
+        if (!foundUser) { showToast('Login ditolak. Username/password belum terdaftar atau tidak sesuai.', 'error'); return; }
+        if (String(foundUser.name).trim().toLowerCase() !== staffNameInput.toLowerCase()) { showToast('Nama petugas tidak cocok dengan akun terdaftar. Hubungi Owner.', 'error'); return; }
+        if (roleInput !== foundUser.role || deptInput !== foundUser.dept) { showToast('Peran/divisi tidak sesuai akun terdaftar. Pilih peran dan divisi yang benar.', 'error'); return; }
+        if (foundUser.role === 'Owner' && (foundUser.dept !== 'Direksi / Owner' || foundUser.name.trim().toLowerCase() !== staffNameInput.toLowerCase())) { showToast('Akses Owner hanya untuk user Owner terdaftar di divisi Direksi.', 'error'); return; }
+        currentUser = { username: foundUser.username, role: foundUser.role, staffName: foundUser.name, dept: foundUser.dept, modules: foundUser.modules || [] };
         document.getElementById('userNameDisplay').innerText = currentUser.staffName;
         document.getElementById('userRoleDisplay').innerText = currentUser.role;
         document.getElementById('userAvatar').innerText = currentUser.staffName.charAt(0).toUpperCase();
-
         closeModal('loginModal');
         logAudit('Login System', `Staff ${currentUser.staffName} login sebagai ${currentUser.role}`);
         showToast(`Selamat Datang, ${currentUser.staffName} (${currentUser.role})!`, 'success');
-        
-        // Ensure starting tab is allowed
-        if (currentUser.modules.includes('all') || currentUser.modules.includes('dashboard')) {
-            switchTab('dashboard');
-        } else if (currentUser.modules.length > 0) {
-            switchTab(currentUser.modules[0]);
-        }
+        renderSidebar();
+        const firstAllowed = currentUser.modules.includes('all') ? 'dashboard' : (currentUser.modules[0] || 'dashboard');
+        switchTab(currentUser.modules.includes('all') || currentUser.modules.includes('dashboard') ? 'dashboard' : firstAllowed);
     }
 
     function renderSidebar() {
@@ -1576,6 +1554,7 @@
             { id: 'inventory', label: 'Inventori & Barcode', icon: 'fa-boxes-stacked' },
             { id: 'stock_opname', label: 'Stock Opname Bulanan', icon: 'fa-clipboard-check' },
             { id: 'production', label: 'Produksi & Resep BOM', icon: 'fa-industry' },
+            { id: 'marketing', label: 'Marketing & Marketing Kit', icon: 'fa-bullhorn' },
             { id: 'procurement', label: 'Pengadaan & Restock', icon: 'fa-truck-ramp-box' },
             { id: 'supplier', label: 'Data Supplier / Vendor', icon: 'fa-truck-field' },
             { id: 'shipping', label: 'Cek Resi & Retur Ekspedisi', icon: 'fa-truck-fast' },
@@ -1631,6 +1610,7 @@
             inventory: 'Inventori, Transfer Stok & Cetak Barcode SKU',
             stock_opname: 'Stock Opname Bulanan Multi-Kategori (Owner Auth)',
             production: 'Modul Produksi & Master Formula Resep BOM (Barang Setengah Jadi)',
+            marketing: 'Marketing, Konten, Live, CRM & Marketing Kit',
             procurement: 'Pengadaan & Restock Auto (Modul Pembelian)',
             supplier: 'Directory Data Supplier & Vendor',
             shipping: 'Pelacakan Resi & Manajemen Retur Ekspedisi',
@@ -1653,6 +1633,7 @@
         else if (tabId === 'inventory') renderInventory(main);
         else if (tabId === 'stock_opname') renderStockOpname(main);
         else if (tabId === 'production') renderProduction(main);
+        else if (tabId === 'marketing') renderMarketing(main);
         else if (tabId === 'procurement') renderProcurement(main);
         else if (tabId === 'supplier') renderSupplier(main);
         else if (tabId === 'shipping') renderShipping(main);
@@ -2989,6 +2970,8 @@
                         <button type="button" onclick="openModal('stockTransferModal')" class="flex-1 sm:flex-none px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-xs shadow">
                             <i class="fa-solid fa-arrow-right-arrow-left me-1"></i> Pemindahan Barang
                         </button>
+                        <button type="button" onclick="openBarcodeScanner()" class="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow"><i class="fa-solid fa-camera mr-1"></i> Scan Barcode / Kamera</button>
+                        <button type="button" onclick="printCurrentModule()" class="flex-1 sm:flex-none px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-xs shadow"><i class="fa-solid fa-print mr-1"></i> Cetak / Printer</button>
                         <button type="button" onclick="openProductModal()" class="flex-1 sm:flex-none px-4 py-2 bg-mamimoe-600 hover:bg-mamimoe-700 text-white font-bold rounded-xl text-xs shadow">
                             + Tambah Item Barang
                         </button>
@@ -3424,6 +3407,15 @@
                                 <label class="block text-slate-400 mb-1.5 font-semibold">Jumlah QTY ALL (Masuk Barang Setengah Jadi) *</label>
                                 <input type="number" id="prodQtyAll" value="50" min="1" required class="w-full bg-slate-800 border border-slate-700 text-cyan-400 font-mono font-bold rounded-xl px-3 py-2.5 text-xs">
                             </div>
+                            <div>
+                                <label class="block text-slate-400 mb-1.5 font-semibold">Metode Produksi *</label>
+                                <select id="prodMethod" required class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-2.5 font-bold" onchange="document.getElementById('prodMethodOtherWrap').classList.toggle('hidden',this.value!=='Lainnya')">
+                                    <option value="Cold Process">Cold Process — masuk Setengah Jadi</option>
+                                    <option value="Hot Process">Hot Process — langsung Barang Jadi</option>
+                                    <option value="Lainnya">Metode lainnya (tulis manual)</option>
+                                </select>
+                                <div id="prodMethodOtherWrap" class="hidden mt-2"><input id="prodMethodOther" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-2" placeholder="Tulis metode produksi lainnya"></div>
+                            </div>
                         </div>
 
                         <div class="space-y-2 pt-2 border-t border-slate-800">
@@ -3588,6 +3580,9 @@
         const tanggalProduksi = document.getElementById('prodTanggalProduksi')?.value || new Date().toISOString().slice(0,10);
         const namaPetugasProduksi = (document.getElementById('prodNamaPetugas')?.value || currentUser.staffName || '').trim();
         const recordType = document.getElementById('prodRecordType')?.value || 'Produksi';
+        const methodSelect = document.getElementById('prodMethod')?.value || 'Cold Process';
+        const method = methodSelect === 'Lainnya' ? (document.getElementById('prodMethodOther')?.value.trim() || '') : methodSelect;
+        if (recordType === 'Produksi' && !method) { showToast('Tuliskan metode produksi lainnya.', 'error'); return; }
 
         if (!noProduksi || !tanggalProduksi || !namaPetugasProduksi || qtyAll < 1) {
             showToast('Lengkapi nomor produksi, tanggal, petugas, dan QTY ALL yang valid.', 'error');
@@ -3600,7 +3595,8 @@
         const prd = state.products.find(p => p.sku === sku);
         if (!prd) return;
 
-        if (recordType === 'Produksi') prd.stockSetengahJadi = (prd.stockSetengahJadi || 0) + qtyAll;
+        const stockDestination = method === 'Cold Process' ? 'Barang Setengah Jadi' : 'Gudang Barang Jadi';
+        if (recordType === 'Produksi') { if (stockDestination === 'Barang Setengah Jadi') prd.stockSetengahJadi = (prd.stockSetengahJadi || 0) + qtyAll; else { prd.stockGudang = (prd.stockGudang || 0) + qtyAll; prd.category = 'Barang Jadi (Gudang)'; } }
 
         state.productions.unshift({
             id: noProduksi,
@@ -3612,12 +3608,12 @@
             tanggalProduksi,
             namaPetugasProduksi,
             petugas: namaPetugasProduksi,
-            recordType,
-            status: recordType === 'Produksi' ? 'Selesai & Masuk Barang Setengah Jadi' : 'Percobaan Formula — tidak menambah stok'
+            recordType, method, stockDestination,
+            status: recordType === 'Produksi' ? `Selesai & Masuk ${stockDestination}` : 'Percobaan Formula — tidak menambah stok'
         });
 
         state.stockMovements = state.stockMovements || [];
-        if (recordType === 'Produksi') state.stockMovements.unshift({date:tanggalProduksi, dateTime:new Date().toISOString(), sku, type:'Produksi', from:'Proses Produksi', to:'Barang Setengah Jadi', qty:qtyAll, ref:noProduksi, staff:namaPetugasProduksi});
+        if (recordType === 'Produksi') state.stockMovements.unshift({date:tanggalProduksi, dateTime:new Date().toISOString(), sku, type:'Produksi', from:'Proses Produksi', to:stockDestination, qty:qtyAll, ref:noProduksi, staff:namaPetugasProduksi, method});
         persistAppState();
         logAudit('Produksi Batch', `Jenis ${recordType}; No. ${noProduksi}; ${qtyAll} Pcs untuk SKU ${sku}; petugas ${namaPetugasProduksi}; tanggal ${tanggalProduksi}`);
         renderProduction(document.getElementById('mainContent'));
@@ -4595,6 +4591,7 @@
                         <button type="button" onclick="exportModulePDF('Accounting')" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow">
                             <i class="fa-solid fa-file-pdf"></i> PDF
                         </button>
+                        <button type="button" onclick="printCurrentModule()" class="px-3.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow"><i class="fa-solid fa-print"></i> Cetak</button>
                         <button type="button" onclick="exportModuleCSV('Accounting')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow">
                             <i class="fa-solid fa-file-excel"></i> Excel/CSV
                         </button>
@@ -5417,7 +5414,8 @@ ${suppliersDetail}
         else if (role === 'Finance & Akuntansi') mods = ['dashboard', 'vouchers', 'procurement', 'coretax', 'accounting', 'audit', 'reports', 'ai_assistant'];
         else if (role === 'HRD') mods = ['dashboard', 'hrd', 'reports'];
         else if (role === 'Kepala Gudang') mods = ['dashboard', 'inventory', 'stock_opname', 'production', 'procurement', 'supplier', 'shipping', 'cek_ongkir', 'ai_assistant'];
-        else if (role === 'Tim Produksi') mods = ['dashboard', 'production', 'inventory', 'stock_opname', 'ai_assistant'];
+        else if (role === 'Tim Produksi') mods = ['dashboard', 'production', 'inventory', 'ai_assistant'];
+        else if (role === 'Marketing') mods = ['dashboard', 'marketing', 'crm', 'reports'];
 
         renderModuleCheckboxes(mods);
     }
@@ -5599,6 +5597,43 @@ ${suppliersDetail}
     cloudHydrating = true;
     loadFullStateFromGoogle();
     openAttendanceFromLink();
+
+
+    // === PATCH V2.35: Marketing workflow, barcode devices, printing and data integrity ===
+    function renderMarketing(container) {
+        state.marketingIdeas = state.marketingIdeas || []; state.marketingKits = state.marketingKits || [];
+        state.marketingActivities = state.marketingActivities || []; state.marketingLeads = state.marketingLeads || [];
+        const canApprove = currentUser.role === 'Owner' && currentUser.dept === 'Direksi / Owner';
+        container.innerHTML = `<div class="space-y-5 text-xs">
+          ${generateModuleReportHeader('Marketing & Omnichannel Mamimoe', `${state.marketingIdeas.length} ide konten • ${state.marketingKits.length} marketing kit • ${state.marketingActivities.length} laporan aktivitas`, 'Marketing')}
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">${[['Ide konten',state.marketingIdeas.length],['Menunggu approval',state.marketingIdeas.filter(x=>x.status==='Menunggu Approval').length],['Marketing kit',state.marketingKits.length],['Aktivitas tercatat',state.marketingActivities.length]].map(x=>`<div class="bg-slate-900 border border-slate-800 rounded-2xl p-4"><div class="text-slate-400">${x[0]}</div><div class="text-2xl font-extrabold text-white mt-1">${x[1]}</div></div>`).join('')}</div>
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <form class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3" onsubmit="saveMarketingIdea(event)"><h3 class="font-extrabold text-white text-sm">Content Creator — Pengajuan Ide</h3><input id="mIdeaTitle" required placeholder="Judul / ide konten" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"><select id="mIdeaType" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"><option>Reels / TikTok</option><option>Foto Produk</option><option>Story</option><option>Live Shopping</option><option>Edukasi</option><option>Campaign / Bazar</option></select><textarea id="mIdeaRef" placeholder="Link referensi dan alasan ide" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"></textarea><textarea id="mIdeaBrief" placeholder="Hook, target audiens, pesan utama, CTA" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"></textarea><button class="px-4 py-2.5 bg-purpleacc-600 text-white rounded-xl font-bold">Ajukan Ide untuk Approval</button></form>
+            <form class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3" onsubmit="saveMarketingKit(event)"><h3 class="font-extrabold text-white text-sm">Marketing Kit — Link Aset Siap Pakai</h3><input id="mKitName" required placeholder="Nama kit / campaign" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"><input id="mKitLink" type="url" required placeholder="Link folder Drive berisi video/foto/desain" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"><textarea id="mKitDetails" rows="3" placeholder="Judul, caption, deskripsi, CTA, hashtag, produk, channel" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"></textarea><button class="px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-bold">Simpan Marketing Kit</button></form>
+          </div>
+          <form class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3" onsubmit="saveMarketingActivity(event)"><h3 class="font-extrabold text-white text-sm">Laporan Aktivitas Harian — Live, Online, Offline, CRM & Bazar</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-3"><select id="mActType" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"><option>Host Live</option><option>Marketing Online / CRM</option><option>Marketing Offline / Bazar</option><option>Content Creator</option><option>WhatsApp Broadcast / Grup</option></select><input id="mActDate" type="date" required value="${new Date().toISOString().slice(0,10)}" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"><input id="mActCount" type="number" min="0" value="0" placeholder="Jumlah hasil / leads / viewers" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"></div><textarea id="mActProgress" required rows="2" placeholder="Kemajuan, hasil, jumlah pesan/lead/order, respons pelanggan" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"></textarea><textarea id="mActIssues" rows="2" placeholder="Kendala, kebutuhan bantuan, evaluasi dan rencana tindak lanjut" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"></textarea><button class="px-4 py-2.5 bg-mamimoe-600 text-white rounded-xl font-bold">Simpan Laporan Aktivitas</button></form>
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5"><h3 class="font-extrabold text-white text-sm mb-3">Daftar Ide & Approval Owner</h3><div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-slate-400 border-b border-slate-700"><th class="p-2">Tanggal</th><th class="p-2">Ide</th><th class="p-2">Referensi</th><th class="p-2">Status</th><th class="p-2">Aksi Owner</th></tr></thead><tbody>${state.marketingIdeas.map((x,i)=>`<tr class="border-b border-slate-800"><td class="p-2">${x.date}</td><td class="p-2"><b>${escapeHtmlSafe(x.title)}</b><div class="text-slate-400">${escapeHtmlSafe(x.type)} • ${escapeHtmlSafe(x.owner)}</div><div>${escapeHtmlSafe(x.brief||'')}</div></td><td class="p-2">${x.ref?`<a class="text-cyan-400 underline" href="${safeUrl(x.ref)}" target="_blank" rel="noopener">Buka referensi</a>`:'—'}</td><td class="p-2">${x.status}</td><td class="p-2">${canApprove && x.status==='Menunggu Approval'?`<button onclick="approveMarketingIdea(${i},true)" class="bg-emerald-600 px-2 py-1 rounded mr-1">Approve</button><button onclick="approveMarketingIdea(${i},false)" class="bg-rose-600 px-2 py-1 rounded">Tolak</button>`:'—'}</td></tr>`).join('')||'<tr><td colspan="5" class="p-4 text-slate-400">Belum ada pengajuan ide.</td></tr>'}</tbody></table></div></div>
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-4"><div class="bg-slate-900 border border-slate-800 rounded-2xl p-5"><h3 class="font-extrabold text-white text-sm mb-3">Marketing Kit</h3>${state.marketingKits.map(x=>`<div class="border-b border-slate-800 py-3"><b>${escapeHtmlSafe(x.name)}</b> — <a class="text-cyan-400 underline" href="${safeUrl(x.link)}" target="_blank" rel="noopener">Buka aset</a><p class="text-slate-400 mt-1">${escapeHtmlSafe(x.details||'')}</p><small>${x.date} • ${x.owner}</small></div>`).join('')||'<p class="text-slate-400">Belum ada kit.</p>'}</div><div class="bg-slate-900 border border-slate-800 rounded-2xl p-5"><h3 class="font-extrabold text-white text-sm mb-3">Laporan Tim Marketing</h3>${state.marketingActivities.slice().reverse().map(x=>`<div class="border-b border-slate-800 py-3"><div class="flex justify-between"><b>${escapeHtmlSafe(x.type)}</b><span>${x.date}</span></div><p class="mt-1">${escapeHtmlSafe(x.progress)}</p><p class="text-slate-400 mt-1">Hasil/angka: ${x.count} • Kendala: ${escapeHtmlSafe(x.issues||'—')}</p><small>Petugas: ${escapeHtmlSafe(x.owner)}</small></div>`).join('')||'<p class="text-slate-400">Belum ada laporan aktivitas.</p>'}</div></div>
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5"><h3 class="font-extrabold text-white text-sm">CRM Follow-up & WhatsApp</h3><p class="text-slate-400 mt-1 mb-3">Gunakan data pelanggan yang memiliki izin menerima pesan. Broadcast WhatsApp massal otomatis memerlukan integrasi WhatsApp Business Platform/provider; tombol di bawah menyiapkan teks dan membuka WhatsApp secara manual.</p><textarea id="mWaMessage" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white" placeholder="Tulis pesan promo / produk baru / follow-up..."></textarea><button onclick="prepareMarketingWhatsApp()" class="mt-3 px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-bold">Buka WhatsApp dengan Pesan</button> <button onclick="exportMarketingCSV()" class="mt-3 px-4 py-2.5 bg-slate-700 text-white rounded-xl font-bold">Ekspor Laporan CSV</button></div>
+        </div>`;
+    }
+    function escapeHtmlSafe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    function safeUrl(v){try{const u=new URL(v);return ['http:','https:'].includes(u.protocol)?u.href:'#';}catch(e){return '#';}}
+    function saveMarketingIdea(e){e.preventDefault();state.marketingIdeas=state.marketingIdeas||[];state.marketingIdeas.unshift({id:'MKT-I-'+Date.now(),date:new Date().toISOString().slice(0,10),title:document.getElementById('mIdeaTitle').value.trim(),type:document.getElementById('mIdeaType').value,ref:document.getElementById('mIdeaRef').value.trim(),brief:document.getElementById('mIdeaBrief').value.trim(),owner:currentUser.staffName,status:'Menunggu Approval'});persistAppState();logAudit('Marketing Ide','Pengajuan ide konten');renderMarketing(document.getElementById('mainContent'));showToast('Ide tersimpan dan menunggu approval Owner.','success');}
+    function approveMarketingIdea(i,yes){if(currentUser.role!=='Owner'||currentUser.dept!=='Direksi / Owner'){showToast('Hanya Owner divisi Direksi yang dapat menyetujui ide.','error');return;}const x=state.marketingIdeas?.[i];if(!x)return;x.status=yes?'Disetujui':'Ditolak';x.approvedBy=currentUser.staffName;x.approvedAt=new Date().toISOString();persistAppState();renderMarketing(document.getElementById('mainContent'));showToast('Status ide diperbarui.','success');}
+    function saveMarketingKit(e){e.preventDefault();state.marketingKits=state.marketingKits||[];state.marketingKits.unshift({id:'MKT-K-'+Date.now(),name:document.getElementById('mKitName').value.trim(),link:document.getElementById('mKitLink').value.trim(),details:document.getElementById('mKitDetails').value.trim(),date:new Date().toISOString().slice(0,10),owner:currentUser.staffName});persistAppState();renderMarketing(document.getElementById('mainContent'));showToast('Marketing kit tersimpan.','success');}
+    function saveMarketingActivity(e){e.preventDefault();state.marketingActivities=state.marketingActivities||[];state.marketingActivities.push({id:'MKT-A-'+Date.now(),type:document.getElementById('mActType').value,date:document.getElementById('mActDate').value,count:Number(document.getElementById('mActCount').value)||0,progress:document.getElementById('mActProgress').value.trim(),issues:document.getElementById('mActIssues').value.trim(),owner:currentUser.staffName});persistAppState();renderMarketing(document.getElementById('mainContent'));showToast('Laporan aktivitas marketing tersimpan.','success');}
+    function prepareMarketingWhatsApp(){const msg=document.getElementById('mWaMessage')?.value.trim();if(!msg){showToast('Tulis pesan terlebih dahulu.','error');return;}window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');}
+    function exportMarketingCSV(){const rows=[['tanggal','jenis','petugas','jumlah','kemajuan','kendala'],...(state.marketingActivities||[]).map(x=>[x.date,x.type,x.owner,x.count,x.progress,x.issues])];downloadCSV('laporan-marketing-mamimoe.csv',rows);}
+    function printCurrentModule(){window.print();}
+    let barcodeStream=null;
+    async function openBarcodeScanner(){const main=document.getElementById('mainContent');let modal=document.getElementById('barcodeScannerModal');if(!modal){modal=document.createElement('div');modal.id='barcodeScannerModal';modal.className='fixed inset-0 z-[220] bg-slate-950/90 flex items-center justify-center p-4';modal.innerHTML=`<div class="bg-slate-900 border border-slate-700 rounded-2xl p-5 w-full max-w-lg space-y-3"><div class="flex justify-between"><b>Scan Barcode / Kamera HP</b><button onclick="closeBarcodeScanner()">✕</button></div><video id="barcodeVideo" autoplay playsinline class="w-full max-h-64 bg-black rounded-xl"></video><p class="text-slate-400">Jika browser mendukung BarcodeDetector, arahkan kamera ke barcode. Alternatif scanner USB/Bluetooth: klik kolom dan scan seperti mengetik.</p><input id="barcodeScanInput" autofocus placeholder="Fokus di sini lalu scan barcode USB/Bluetooth" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white" onkeydown="if(event.key==='Enter'){lookupScannedSku(this.value)}"><button onclick="startBarcodeCamera()" class="bg-indigo-600 px-3 py-2 rounded-xl">Aktifkan Kamera</button><button onclick="closeBarcodeScanner()" class="bg-slate-700 px-3 py-2 rounded-xl">Tutup</button></div>`;document.body.appendChild(modal);}else modal.classList.remove('hidden');document.getElementById('barcodeScanInput')?.focus();}
+    async function startBarcodeCamera(){try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('Browser tidak mendukung akses kamera. Gunakan HTTPS atau localhost.');barcodeStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});const video=document.getElementById('barcodeVideo');video.srcObject=barcodeStream;await video.play();if('BarcodeDetector'in window){const detector=new BarcodeDetector({formats:['code_128','ean_13','ean_8','qr_code','upc_a','upc_e']});const scan=async()=>{if(!barcodeStream||document.getElementById('barcodeScannerModal')?.classList.contains('hidden'))return;try{const codes=await detector.detect(video);if(codes.length){lookupScannedSku(codes[0].rawValue);return;}}catch(e){}requestAnimationFrame(scan);};requestAnimationFrame(scan);}else showToast('Kamera aktif, tetapi BarcodeDetector tidak tersedia di browser ini. Gunakan scanner USB/Bluetooth atau browser yang mendukung.','info');}catch(e){showToast('Kamera gagal dibuka: '+e.message,'error');}}
+    function lookupScannedSku(value){const sku=String(value||'').trim();const p=state.products.find(x=>String(x.sku).toLowerCase()===sku.toLowerCase());if(p){closeBarcodeScanner();showToast('Produk ditemukan: '+p.name+' ('+p.sku+')','success');if(activeTab!=='inventory')switchTab('inventory');}else showToast('Kode terbaca: '+sku+'. SKU belum terdaftar di inventori.','error');}
+    function closeBarcodeScanner(){if(barcodeStream){barcodeStream.getTracks().forEach(t=>t.stop());barcodeStream=null;}document.getElementById('barcodeScannerModal')?.classList.add('hidden');}
+    // Browser-based printing supports standard printers and receipt printers exposed by the OS/browser print dialog.
+    window.addEventListener('afterprint',()=>{});
+
 </script>
 </body>
 </html>
